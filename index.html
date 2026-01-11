@@ -3,73 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeraBox Private Streamer</title>
+    <title>TeraBox Premium Streamer</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #000; color: #fff; margin: 0; padding: 0; overflow-x: hidden; }
-        .header { background: #111; padding: 15px; text-align: center; border-bottom: 2px solid #0084ff; }
-        .container { padding: 20px; max-width: 900px; margin: auto; }
-        .input-area { margin-bottom: 20px; display: flex; gap: 10px; }
-        input { flex: 1; padding: 12px; border-radius: 5px; border: 1px solid #333; background: #222; color: #fff; outline: none; }
-        button { padding: 12px 25px; background: #0084ff; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        /* পুরো স্ক্রিন জুড়ে ভিডিও দেখানোর জন্য ডিজাইন */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; overflow: hidden; font-family: sans-serif; }
+        .control-panel { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 100; width: 90%; max-width: 600px; text-align: center; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px; }
+        input { width: 70%; padding: 10px; border-radius: 5px; border: none; font-size: 14px; }
+        button { padding: 10px 20px; border-radius: 5px; border: none; background: #0084ff; color: #fff; font-weight: bold; cursor: pointer; }
         
-        /* প্লেয়ার এরিয়া */
-        #player-wrapper { 
-            width: 100%; 
-            background: #000; 
-            border-radius: 10px; 
-            overflow: hidden; 
-            display: none; 
-            box-shadow: 0 0 20px rgba(0, 132, 255, 0.2);
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
-        }
-        #player-wrapper iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        .footer-note { margin-top: 20px; text-align: center; font-size: 12px; color: #666; }
+        /* ভিডিও প্লেয়ার এরিয়া */
+        #video-frame-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        .app-notice { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #aaa; font-size: 12px; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h2 style="margin:0; color:#0084ff;">My Online Streamer</h2>
+<!-- ইনপুট প্যানেল -->
+<div class="control-panel">
+    <input type="text" id="teraUrl" value="https://1024terabox.com/s/1v3X9omm6NBpGiqPQlkwk5w" placeholder="লিঙ্কটি এখানে দিন">
+    <button onclick="startStream()">Play</button>
 </div>
 
-<div class="container">
-    <div class="input-area">
-        <input type="text" id="teraUrl" value="https://1024terabox.com/s/1v3X9omm6NBpGiqPQlkwk5w" placeholder="টেরাবক্স লিঙ্কটি এখানে দিন...">
-        <button onclick="loadOnSitePlayer()">প্লে করুন</button>
-    </div>
+<!-- ভিডিও লোড হওয়ার জায়গা -->
+<div id="video-frame-container">
+    <iframe id="mainPlayer" src="" allowfullscreen="true" allow="autoplay; fullscreen" scrolling="no"></iframe>
+</div>
 
-    <!-- এই বক্সের ভেতরেই আপনার সাইটে ভিডিও চলবে -->
-    <div id="player-wrapper">
-        <iframe id="videoIframe" src="" allowfullscreen="true" allow="autoplay; fullscreen" scrolling="no"></iframe>
-    </div>
-
-    <div class="footer-note">
-        ভিডিও প্লে হতে সমস্যা হলে আপনার ব্রাউজারের <strong>"Desktop Site"</strong> অপশনটি অন করুন। <br>
-        এতে টেরাবক্স অ্যাপ ছাড়াই সরাসরি আপনার সাইটে ভিডিও চলবে।
-    </div>
+<div class="app-notice">
+    ভিডিও লোড না হলে বা অ্যাপ ওপেন হতে চাইলে ব্রাউজারের <b>"Desktop Site"</b> মোড অন করুন।
 </div>
 
 <script>
-    function loadOnSitePlayer() {
+    function startStream() {
         const input = document.getElementById('teraUrl').value.trim();
-        const iframe = document.getElementById('videoIframe');
-        const wrapper = document.getElementById('player-wrapper');
+        const player = document.getElementById('mainPlayer');
         
-        // আপনার দেওয়া Associate Key (ইনকাম নিশ্চিত করার জন্য)
+        // আপনার কি (Key)
         const myKey = "oST1LLtu6l9-40fczlLOssK46o112lTn_Xho4cP9nzo=";
         
         let surl = "";
 
-        // লিঙ্কের আইডি বের করা
+        // লিঙ্কের আইডি (surl) বের করা
         if (input.includes("/s/1")) {
             surl = input.split("/s/1")[1].split("?")[0];
         } else if (input.includes("surl=")) {
@@ -79,18 +55,20 @@
         }
 
         if (surl) {
-            // এই লিঙ্কটি সরাসরি এমবেড প্লেয়ার লোড করে যা আপনার সাইটেই থাকে
-            const embedLink = `https://www.teraboxapp.com/sharing/embed?surl=${surl}&sl_key=${myKey}&autoplay=true`;
+            // আপনার কি (sl_key) সহ এমবেড লিঙ্ক যা সরাসরি প্লেয়ার লোড করবে
+            const finalUrl = `https://www.teraboxapp.com/sharing/embed?surl=${surl}&sl_key=${myKey}&autoplay=true`;
             
-            iframe.src = embedLink;
-            wrapper.style.display = "block";
+            player.src = finalUrl;
             
-            // অটো স্ক্রল করে প্লেয়ারে নিয়ে যাওয়া
-            wrapper.scrollIntoView({ behavior: 'smooth' });
+            // প্যানেল হাইড করে দেওয়া যাতে শুধু ভিডিও দেখা যায়
+            document.querySelector('.control-panel').style.opacity = "0.2";
         } else {
-            alert("দয়া করে সঠিক লিঙ্ক দিন!");
+            alert("সঠিক লিঙ্ক দিন!");
         }
     }
+
+    // পেজ লোড হওয়ার সাথে সাথে আপনার দেওয়া লিঙ্কটি চালু হবে
+    window.onload = startStream;
 </script>
 
 </body>
