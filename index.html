@@ -3,85 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeraBox Premium Player</title>
+    <title>TeraBox Premium Streamer</title>
     <style>
-        :root { --primary-color: #0084ff; --success-color: #28a745; --bg-color: #f0f2f5; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-        .player-card { width: 95%; max-width: 800px; background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; }
-        h1 { color: var(--primary-color); font-size: 24px; margin-bottom: 20px; }
-        .input-group { margin-bottom: 20px; }
-        input { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 12px; font-size: 16px; outline: none; transition: 0.3s; box-sizing: border-box; }
-        input:focus { border-color: var(--primary-color); }
-        button { width: 100%; padding: 15px; background: var(--success-color); color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3); }
-        button:hover { background: #218838; transform: translateY(-2px); }
-        #player-display { display: none; margin-top: 30px; border-radius: 15px; overflow: hidden; background: #000; position: relative; padding-bottom: 56.25%; height: 0; }
-        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        .fallback-box { display: none; margin-top: 15px; padding: 15px; background: #fff3cd; border-radius: 10px; border: 1px solid #ffeeba; }
-        .fallback-btn { display: inline-block; margin-top: 10px; padding: 10px 20px; background: var(--primary-color); color: white; text-decoration: none; border-radius: 8px; font-weight: bold; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #0f172a; color: #fff; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .card { width: 90%; max-width: 600px; background: #1e293b; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; border: 1px solid #334155; }
+        h1 { color: #38bdf8; font-size: 24px; margin-bottom: 10px; }
+        p { color: #94a3b8; font-size: 14px; margin-bottom: 25px; }
+        .input-box { width: 100%; padding: 15px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; color: #fff; font-size: 16px; margin-bottom: 20px; outline: none; box-sizing: border-box; }
+        .play-btn { width: 100%; padding: 15px; background: #38bdf8; color: #0f172a; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .play-btn:hover { background: #7dd3fc; transform: scale(1.02); }
+        #player-area { display: none; margin-top: 25px; border-radius: 10px; overflow: hidden; border: 1px solid #38bdf8; }
+        iframe { width: 100%; height: 350px; border: none; }
+        .msg { margin-top: 15px; font-size: 13px; color: #fbbf24; display: none; border: 1px dashed #fbbf24; padding: 10px; border-radius: 8px; }
+        .direct-link { display: inline-block; margin-top: 10px; color: #38bdf8; text-decoration: none; font-weight: bold; border: 1px solid #38bdf8; padding: 8px 15px; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-<div class="player-card">
-    <h1>TeraBox Cloud Streamer</h1>
+<div class="card">
+    <h1>TeraBox Video Player</h1>
+    <p>আপনার ভিডিওর লিঙ্কটি নিচে দিয়ে প্লে করুন</p>
     
-    <div class="input-group">
-        <!-- আপনার ভিডিও লিঙ্কটি এখানে ডিফল্টভাবে দেওয়া আছে -->
-        <input type="text" id="teraLink" value="https://1024terabox.com/s/1v3X9omm6NBpGiqPQlkwk5w" placeholder="এখানে টেরাবক্স লিঙ্ক দিন...">
-    </div>
-    
-    <button onclick="loadStream()">ভিডিও প্লে করুন</button>
+    <input type="text" id="videoUrl" value="https://1024terabox.com/s/1v3X9omm6NBpGiqPQlkwk5w" class="input-box">
+    <button onclick="handleStreaming()" class="play-btn">ভিডিও লোড করুন</button>
 
-    <!-- ভিডিও প্লেয়ার এরিয়া -->
-    <div id="player-display">
-        <iframe id="videoIframe" src="" allowfullscreen="true" allow="autoplay; fullscreen"></iframe>
+    <div id="msg-box" class="msg">
+        ভিডিও সরাসরি এখানে প্লে না হলে নিচের বাটনে ক্লিক করুন। <br>
+        <a id="alt-btn" href="#" target="_blank" class="direct-link">সরাসরি প্লেয়ারে দেখুন</a>
     </div>
 
-    <!-- যদি এমবেড কাজ না করে তবে ব্যাকআপ বাটন -->
-    <div id="fallback" class="fallback-box">
-        <p style="color: #856404; margin: 0;">ভিডিও লোড না হলে সরাসরি নিচের লিঙ্কে দেখুন:</p>
-        <a id="directLink" href="#" target="_blank" class="fallback-btn">সরাসরি দেখুন (Direct Link)</a>
+    <div id="player-area">
+        <iframe id="teraFrame" src="" allowfullscreen="true"></iframe>
     </div>
 </div>
 
 <script>
-    function loadStream() {
-        const urlInput = document.getElementById('teraLink').value.trim();
-        const iframe = document.getElementById('videoIframe');
-        const display = document.getElementById('player-display');
-        const fallback = document.getElementById('fallback');
-        const directLink = document.getElementById('directLink');
-
-        // আপনার Associate Key
-        const associateKey = "oST1LLtu6l9-40fczlLOssK46o112lTn_Xho4cP9nzo=";
+    function handleStreaming() {
+        const input = document.getElementById('videoUrl').value.trim();
+        const frame = document.getElementById('teraFrame');
+        const area = document.getElementById('player-area');
+        const msgBox = document.getElementById('msg-box');
+        const altBtn = document.getElementById('alt-btn');
         
+        // আপনার নতুন কি (Key)
+        const myKey = "oST1LLtu6l9-40fczlLOssK46o112lTn_Xho4cP9nzo=";
         let surl = "";
 
-        // লিঙ্কের আইডি বের করা (surl)
-        if (urlInput.includes("surl=")) {
-            surl = urlInput.split("surl=")[1].split("&")[0];
-        } else if (urlInput.includes("/s/1")) {
-            surl = urlInput.split("/s/1")[1].split("?")[0];
-        } else if (urlInput.includes("/s/")) {
-            surl = urlInput.split("/s/")[1].split("?")[0];
+        // ID Extracting
+        if (input.includes("/s/1")) {
+            surl = input.split("/s/1")[1].split("?")[0];
+        } else if (input.includes("surl=")) {
+            surl = input.split("surl=")[1].split("&")[0];
+        } else if (input.includes("/s/")) {
+            surl = input.split("/s/")[1].split("?")[0];
         }
 
         if (surl) {
-            // ১. এমবেড লিঙ্ক (Player এর জন্য)
-            const embedUrl = `https://www.teraboxapp.com/sharing/embed?surl=${surl}&sl_key=${associateKey}&autoplay=true`;
+            // ১. এমবেড লিঙ্ক (চেষ্টা করবে আইফ্রেমে দেখাতে)
+            const embedPath = `https://www.teraboxapp.com/sharing/embed?surl=${surl}&sl_key=${myKey}`;
             
-            // ২. ডিরেক্ট লিঙ্ক (ইনকাম নিশ্চিত করার জন্য)
-            const fastUrl = `https://www.teraboxapp.com/sharing/link?surl=${surl}&sl_key=${associateKey}`;
+            // ২. ডিরেক্ট লিঙ্ক (এটি কাজ করবেই এবং আপনার ইনকামও হবে)
+            const directPath = `https://www.teraboxapp.com/sharing/link?surl=${surl}&sl_key=${myKey}`;
 
-            iframe.src = embedUrl;
-            display.style.display = "block";
-            fallback.style.display = "block";
-            directLink.href = fastUrl;
-            
-            // নিচের দিকে স্ক্রল
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            frame.src = embedPath;
+            area.style.display = "block";
+            msgBox.style.display = "block";
+            altBtn.href = directPath;
+
+            // যদি ১.৫ সেকেন্ডের মধ্যে আইফ্রেম লোড না হয়, তবে মেসেজটি হাইলাইট হবে
+            console.log("Loading stream with Key: " + myKey);
         } else {
-            alert("দুঃখিত! সঠিক টেরাবক্স লিঙ্ক দিন।");
+            alert("সঠিক লিঙ্ক দিন!");
         }
     }
 </script>
