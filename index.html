@@ -3,68 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeraBox Premium Video Player</title>
+    <title>TeraBox Direct Web Player</title>
     <style>
-        * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0b0e14; color: #fff; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .player-card { width: 90%; max-width: 500px; background: #1a1d24; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid #333; text-align: center; }
-        .thumbnail-area { position: relative; width: 100%; height: 250px; background: url('https://img.freepik.com/free-vector/video-player-template-design_1017-23659.jpg') center/cover; }
-        .play-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; cursor: pointer; }
-        .play-icon { width: 80px; height: 80px; background: #e50914; border-radius: 50%; display: flex; justify-content: center; align-items: center; transition: 0.3s; box-shadow: 0 0 20px rgba(229, 9, 20, 0.5); }
-        .play-icon:hover { transform: scale(1.1); background: #ff0a16; }
-        .play-icon::after { content: ''; display: block; width: 0; height: 0; border-top: 15px solid transparent; border-bottom: 15px solid transparent; border-left: 25px solid white; margin-left: 5px; }
-        .content { padding: 30px; }
-        h2 { font-size: 20px; margin: 0 0 10px; color: #fff; }
-        p { font-size: 14px; color: #aaa; margin-bottom: 25px; }
-        .btn { display: block; width: 100%; padding: 15px; background: #e50914; color: #fff; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 18px; transition: 0.3s; }
-        .btn:hover { background: #b20710; }
-        .info { margin-top: 15px; font-size: 12px; color: #555; }
+        body { font-family: sans-serif; background-color: #000; color: #fff; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+        .container { width: 90%; max-width: 800px; text-align: center; }
+        input { width: 100%; padding: 15px; border-radius: 8px; border: none; margin-bottom: 20px; font-size: 16px; }
+        button { padding: 15px 30px; background-color: #0084ff; color: #fff; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; font-weight: bold; }
+        #video-container { margin-top: 20px; width: 100%; display: none; border: 2px solid #333; border-radius: 10px; overflow: hidden; background: #111; }
+        iframe { width: 100%; height: 450px; border: none; }
+        .instructions { margin-top: 20px; font-size: 13px; color: #aaa; background: #222; padding: 15px; border-radius: 8px; }
     </style>
 </head>
 <body>
 
-<div class="player-card">
-    <!-- ভিডিও থাম্বনেইল এরিয়া -->
-    <div class="thumbnail-area">
-        <div class="play-overlay" onclick="redirectTeraBox()">
-            <div class="play-icon"></div>
-        </div>
+<div class="container">
+    <h2>TeraBox Web Player</h2>
+    <p>অ্যাপ ছাড়াই সরাসরি ভিডিও দেখুন</p>
+    
+    <input type="text" id="teraUrl" placeholder="আপনার টেরাবক্স লিঙ্কটি এখানে দিন..." value="https://1024terabox.com/s/1v3X9omm6NBpGiqPQlkwk5w">
+    <button onclick="playNow()">Play Video</button>
+
+    <div id="video-container">
+        <!-- এখানে ভিডিও লোড হবে -->
+        <iframe id="player" src="" allowfullscreen="true" scrolling="no"></iframe>
     </div>
 
-    <!-- তথ্য এরিয়া -->
-    <div class="content">
-        <h2 id="videoTitle">ভিডিওটি লোড করা হয়েছে</h2>
-        <p>অনলাইনে হাই-কোয়ালিটিতে ভিডিওটি দেখতে নিচের বাটনে ক্লিক করুন।</p>
-        
-        <a href="javascript:void(0)" class="btn" onclick="redirectTeraBox()">Play Video Online</a>
-        
-        <div class="info">Powered by TeraBox Official Stream</div>
+    <div class="instructions">
+        <strong>অ্যাপ ছাড়া দেখার টিপস:</strong><br>
+        ১. ভিডিও লোড হওয়ার পর যদি "Open in App" দেখায়, তবে আপনার ব্রাউজারের সেটিংস থেকে <strong>"Desktop Site"</strong> মোডটি চালু করুন।<br>
+        ২. এটি অ্যাপের বাধা ছাড়াই সরাসরি ব্রাউজারে ভিডিও প্লে করবে।
     </div>
 </div>
 
 <script>
-    function redirectTeraBox() {
-        // আপনার ভিডিও লিঙ্ক
-        const originalUrl = "https://1024terabox.com/s/1v3X9omm6NBpGiqPQlkwk5w";
-        // আপনার Associate Key
-        const associateKey = "oST1LLtu6l9-40fczlLOssK46o112lTn_Xho4cP9nzo=";
-
+    function playNow() {
+        const input = document.getElementById('teraUrl').value.trim();
+        const player = document.getElementById('player');
+        const container = document.getElementById('video-container');
+        
         let surl = "";
-        // ID Extracting
-        if (originalUrl.includes("/s/1")) {
-            surl = originalUrl.split("/s/1")[1].split("?")[0];
-        } else if (originalUrl.includes("surl=")) {
-            surl = originalUrl.split("surl=")[1].split("&")[0];
+        
+        // লিঙ্ক থেকে SURL বের করার লজিক
+        if (input.includes("/s/1")) {
+            surl = input.split("/s/1")[1].split("?")[0];
+        } else if (input.includes("surl=")) {
+            surl = input.split("surl=")[1].split("&")[0];
+        } else if (input.includes("/s/")) {
+            surl = input.split("/s/")[1].split("?")[0];
         }
 
         if (surl) {
-            // রিডাইরেক্ট লিঙ্ক (এটি ব্রাউজারে সুন্দরভাবে প্লে হবে এবং আপনার কি কাজ করবে)
-            const finalUrl = `https://www.teraboxapp.com/sharing/link?surl=${surl}&sl_key=${associateKey}`;
+            // ইনকাম কি (sl_key) ছাড়া সরাসরি এমবেড লিঙ্ক
+            const embedUrl = `https://www.teraboxapp.com/sharing/embed?surl=${surl}`;
             
-            // নতুন ট্যাবে ভিডিও ওপেন করা
-            window.open(finalUrl, '_blank');
+            player.src = embedUrl;
+            container.style.display = "block";
+            
+            // অটো স্ক্রল
+            container.scrollIntoView({ behavior: 'smooth' });
         } else {
-            alert("লিঙ্ক প্রসেস করা যাচ্ছে না!");
+            alert("দয়া করে সঠিক লিঙ্ক দিন!");
         }
     }
 </script>
