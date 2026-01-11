@@ -3,72 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeraBox Premium Streamer</title>
+    <title>TeraBox Premium Player</title>
     <style>
-        /* পুরো স্ক্রিন জুড়ে ভিডিও দেখানোর জন্য ডিজাইন */
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; overflow: hidden; font-family: sans-serif; }
-        .control-panel { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 100; width: 90%; max-width: 600px; text-align: center; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px; }
-        input { width: 70%; padding: 10px; border-radius: 5px; border: none; font-size: 14px; }
-        button { padding: 10px 20px; border-radius: 5px; border: none; background: #0084ff; color: #fff; font-weight: bold; cursor: pointer; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; font-family: sans-serif; overflow: hidden; }
+        .container { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
         
-        /* ভিডিও প্লেয়ার এরিয়া */
-        #video-frame-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        /* উপরের ইনপুট বক্স */
+        .input-box { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; gap: 5px; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 10px; width: 90%; max-width: 500px; }
+        input { flex: 1; padding: 10px; border-radius: 5px; border: none; outline: none; }
+        button { padding: 10px 15px; background: #0084ff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+        /* প্লেয়ার এরিয়া */
+        #player-container { flex: 1; width: 100%; height: 100%; }
         iframe { width: 100%; height: 100%; border: none; }
 
-        .app-notice { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #aaa; font-size: 12px; text-align: center; }
+        .error-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; display: none; color: #aaa; width: 80%; }
+        .desktop-btn { margin-top: 15px; padding: 10px; background: #ff9800; color: white; border-radius: 5px; text-decoration: none; display: inline-block; }
     </style>
 </head>
 <body>
 
-<!-- ইনপুট প্যানেল -->
-<div class="control-panel">
-    <input type="text" id="teraUrl" value="https://1024terabox.com/s/1v3X9omm6NBpGiqPQlkwk5w" placeholder="লিঙ্কটি এখানে দিন">
-    <button onclick="startStream()">Play</button>
-</div>
+<div class="container">
+    <div class="input-box">
+        <input type="text" id="videoUrl" value="https://1024terabox.com/s/1v3X9omm6NBpGiqPQlkwk5w" placeholder="TeraBox লিঙ্ক দিন">
+        <button onclick="playVideo()">প্লে করুন</button>
+    </div>
 
-<!-- ভিডিও লোড হওয়ার জায়গা -->
-<div id="video-frame-container">
-    <iframe id="mainPlayer" src="" allowfullscreen="true" allow="autoplay; fullscreen" scrolling="no"></iframe>
-</div>
+    <div id="player-container">
+        <iframe id="teraIframe" src="" allowfullscreen="true" allow="autoplay; fullscreen" scrolling="no"></iframe>
+    </div>
 
-<div class="app-notice">
-    ভিডিও লোড না হলে বা অ্যাপ ওপেন হতে চাইলে ব্রাউজারের <b>"Desktop Site"</b> মোড অন করুন।
+    <div id="errorBox" class="error-msg">
+        <p>ভিডিওটি এখানে সরাসরি লোড হচ্ছে না?</p>
+        <p>মোবাইল ইউজাররা ব্রাউজারের উপরে (৩-ডট) ক্লিক করে <b>"Desktop Site"</b> মোড অন করুন।</p>
+        <a href="javascript:void(0)" onclick="playVideo()" class="desktop-btn">আবার চেষ্টা করুন</a>
+    </div>
 </div>
 
 <script>
-    function startStream() {
-        const input = document.getElementById('teraUrl').value.trim();
-        const player = document.getElementById('mainPlayer');
+    function playVideo() {
+        const urlInput = document.getElementById('videoUrl').value.trim();
+        const iframe = document.getElementById('teraIframe');
+        const errorBox = document.getElementById('errorBox');
         
-        // আপনার কি (Key)
+        // আপনার সঠিক Associate Key
         const myKey = "oST1LLtu6l9-40fczlLOssK46o112lTn_Xho4cP9nzo=";
         
         let surl = "";
 
-        // লিঙ্কের আইডি (surl) বের করা
-        if (input.includes("/s/1")) {
-            surl = input.split("/s/1")[1].split("?")[0];
-        } else if (input.includes("surl=")) {
-            surl = input.split("surl=")[1].split("&")[0];
-        } else if (input.includes("/s/")) {
-            surl = input.split("/s/")[1].split("?")[0];
+        // SURL আইডি সঠিকভাবে বের করা (শুরুর '1' বাদ দিয়ে)
+        if (urlInput.includes("/s/1")) {
+            surl = urlInput.split("/s/1")[1].split("?")[0];
+        } else if (urlInput.includes("surl=")) {
+            surl = urlInput.split("surl=")[1].split("&")[0];
+        } else if (urlInput.includes("/s/")) {
+            surl = urlInput.split("/s/")[1].split("?")[0];
         }
 
         if (surl) {
-            // আপনার কি (sl_key) সহ এমবেড লিঙ্ক যা সরাসরি প্লেয়ার লোড করবে
-            const finalUrl = `https://www.teraboxapp.com/sharing/embed?surl=${surl}&sl_key=${myKey}&autoplay=true`;
+            // ১. অফিশিয়াল এমবেড লিঙ্ক যা সরাসরি আপনার সাইটে প্লেয়ার লোড করবে
+            const finalUrl = `https://www.teraboxapp.com/sharing/embed?surl=${surl}&sl_key=${myKey}&autoplay=true&resolution=1080`;
             
-            player.src = finalUrl;
+            iframe.src = finalUrl;
+            errorBox.style.display = "block"; // ইনস্ট্রাকশন দেখাবে ভিডিওর পেছনে
             
-            // প্যানেল হাইড করে দেওয়া যাতে শুধু ভিডিও দেখা যায়
-            document.querySelector('.control-panel').style.opacity = "0.2";
+            console.log("Playing SURL: " + surl + " with Key: " + myKey);
         } else {
             alert("সঠিক লিঙ্ক দিন!");
         }
     }
 
-    // পেজ লোড হওয়ার সাথে সাথে আপনার দেওয়া লিঙ্কটি চালু হবে
-    window.onload = startStream;
+    // পেজ লোড হলে অটো প্লে
+    window.onload = playVideo;
 </script>
 
 </body>
