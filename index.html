@@ -3,47 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeraBox Direct Web Player</title>
+    <title>TeraBox Premium Streamer</title>
     <style>
-        body { font-family: sans-serif; background-color: #000; color: #fff; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
-        .container { width: 90%; max-width: 800px; text-align: center; }
-        input { width: 100%; padding: 15px; border-radius: 8px; border: none; margin-bottom: 20px; font-size: 16px; }
-        button { padding: 15px 30px; background-color: #0084ff; color: #fff; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; font-weight: bold; }
-        #video-container { margin-top: 20px; width: 100%; display: none; border: 2px solid #333; border-radius: 10px; overflow: hidden; background: #111; }
-        iframe { width: 100%; height: 450px; border: none; }
-        .instructions { margin-top: 20px; font-size: 13px; color: #aaa; background: #222; padding: 15px; border-radius: 8px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #fff; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { width: 90%; max-width: 500px; background: #1e293b; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; border: 1px solid #334155; }
+        h1 { color: #38bdf8; font-size: 22px; margin-bottom: 20px; }
+        input { width: 100%; padding: 15px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; color: #fff; font-size: 14px; margin-bottom: 20px; outline: none; box-sizing: border-box; }
+        .play-btn { width: 100%; padding: 15px; background: #28a745; color: #fff; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2); }
+        .play-btn:hover { background: #218838; transform: translateY(-2px); }
+        .footer { margin-top: 20px; font-size: 12px; color: #64748b; }
+        .status { margin-top: 15px; font-size: 14px; color: #fbbf24; display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>TeraBox Web Player</h2>
-    <p>অ্যাপ ছাড়াই সরাসরি ভিডিও দেখুন</p>
+    <h1>TeraBox Video Player</h1>
+    <p style="font-size: 14px; color: #94a3b8;">আপনার ভিডিও লিঙ্কটি নিচে দিন</p>
     
-    <input type="text" id="teraUrl" placeholder="আপনার টেরাবক্স লিঙ্কটি এখানে দিন..." value="https://1024terabox.com/s/1v3X9omm6NBpGiqPQlkwk5w">
-    <button onclick="playNow()">Play Video</button>
+    <!-- ডিফল্ট হিসেবে আপনার দেওয়া ভিডিও লিঙ্কটি রাখা হয়েছে -->
+    <input type="text" id="videoUrl" value="https://1024terabox.com/s/1v3X9omm6NBpGiqPQlkwk5w" placeholder="এখানে টেরাবক্স লিঙ্ক দিন...">
+    
+    <button onclick="redirectToTera()" class="play-btn">ভিডিও দেখুন (Play Video)</button>
 
-    <div id="video-container">
-        <!-- এখানে ভিডিও লোড হবে -->
-        <iframe id="player" src="" allowfullscreen="true" scrolling="no"></iframe>
-    </div>
+    <div id="status" class="status">প্রসেসিং হচ্ছে... টেরাবক্স প্লেয়ারে নিয়ে যাওয়া হচ্ছে।</div>
 
-    <div class="instructions">
-        <strong>অ্যাপ ছাড়া দেখার টিপস:</strong><br>
-        ১. ভিডিও লোড হওয়ার পর যদি "Open in App" দেখায়, তবে আপনার ব্রাউজারের সেটিংস থেকে <strong>"Desktop Site"</strong> মোডটি চালু করুন।<br>
-        ২. এটি অ্যাপের বাধা ছাড়াই সরাসরি ব্রাউজারে ভিডিও প্লে করবে।
-    </div>
+    <div class="footer">আপনার Associate Key দিয়ে সুরক্ষিত করা হয়েছে</div>
 </div>
 
 <script>
-    function playNow() {
-        const input = document.getElementById('teraUrl').value.trim();
-        const player = document.getElementById('player');
-        const container = document.getElementById('video-container');
+    function redirectToTera() {
+        const input = document.getElementById('videoUrl').value.trim();
+        const status = document.getElementById('status');
+        
+        // আপনার দেওয়া Associate Key (এটিই আপনার ইনকাম নিশ্চিত করবে)
+        const myKey = "oST1LLtu6l9-40fczlLOssK46o112lTn_Xho4cP9nzo=";
         
         let surl = "";
-        
-        // লিঙ্ক থেকে SURL বের করার লজিক
+
+        // লিঙ্কের আইডি (surl) বের করার নিয়ম
         if (input.includes("/s/1")) {
             surl = input.split("/s/1")[1].split("?")[0];
         } else if (input.includes("surl=")) {
@@ -53,16 +51,18 @@
         }
 
         if (surl) {
-            // ইনকাম কি (sl_key) ছাড়া সরাসরি এমবেড লিঙ্ক
-            const embedUrl = `https://www.teraboxapp.com/sharing/embed?surl=${surl}`;
+            status.style.display = "block";
             
-            player.src = embedUrl;
-            container.style.display = "block";
+            // এটি হলো অফিশিয়াল ওয়েবমাস্টার লিঙ্ক ফরম্যাট যা আপনার কি (sl_key) সাপোর্ট করে
+            // এটি সরাসরি টেরাবক্সের নিজস্ব প্লেয়ারে ভিডিওটি ওপেন করবে
+            const finalTeraLink = `https://www.teraboxapp.com/sharing/link?surl=${surl}&sl_key=${myKey}`;
             
-            // অটো স্ক্রল
-            container.scrollIntoView({ behavior: 'smooth' });
+            // ১ সেকেন্ড পর রিডাইরেক্ট হবে
+            setTimeout(() => {
+                window.location.href = finalTeraLink;
+            }, 1000);
         } else {
-            alert("দয়া করে সঠিক লিঙ্ক দিন!");
+            alert("দয়া করে একটি সঠিক টেরাবক্স লিঙ্ক দিন!");
         }
     }
 </script>
